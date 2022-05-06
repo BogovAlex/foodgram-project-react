@@ -1,0 +1,7 @@
+asgiref==3.5.1
+Django==3.2.13
+psycopg2==2.9.3
+python-dotenv==0.20.0
+pytz==2022.1
+sqlparse==0.4.2
+typing_extensions==4.2.0
