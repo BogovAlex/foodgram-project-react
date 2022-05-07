@@ -3,14 +3,20 @@ from rest_framework.routers import DefaultRouter
 
 from app import views
 
-router_v1 = DefaultRouter()
-router_v1.register(
+approuter = DefaultRouter()
+approuter.register(
     r'ingredients',
     views.IngredientViewset,
     basename='ingredients'
 )
+approuter.register(
+    r'tags',
+    views.TagViewset,
+    basename='tags'
+)
 
 
 urlpatterns = [
-    path('', include(router_v1.urls))
+    # path('users/', include('users.urls')),
+    path('', include(approuter.urls))
 ]

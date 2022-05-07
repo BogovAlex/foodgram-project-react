@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
-from datetime import timedelta
+# from datetime import timedelta
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -121,21 +121,24 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ],
 
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
-    ]
+    ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25
 }
 
 
-SIMPLE_JWT = {
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-   'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-   'AUTH_HEADER_TYPES': ('Token',),
-}
+# SIMPLE_JWT = {
+#    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+#    'AUTH_HEADER_TYPES': ('Token',),
+# }
 
 
 # Internationalization

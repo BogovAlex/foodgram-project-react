@@ -1,14 +1,22 @@
 from rest_framework import viewsets, mixins
 
-from app.serializers import IngredientSerializer
-from app.models import Ingredient
-from app.filters import IngredientFilter
+from app import models, filters, serializers
 
 
 class IngredientViewset(mixins.ListModelMixin,
                         mixins.RetrieveModelMixin,
                         viewsets.GenericViewSet):
 
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    filterset_class = IngredientFilter
+    queryset = models.Ingredient.objects.all()
+    serializer_class = serializers.IngredientSerializer
+    filterset_class = filters.IngredientFilter
+    pagination_class = None
+
+
+class TagViewset(mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 viewsets.GenericViewSet):
+
+    queryset = models.Tag.objects.all()
+    serializer_class = serializers.TagSerializer
+    pagination_class = None
