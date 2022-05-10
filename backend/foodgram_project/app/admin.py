@@ -20,10 +20,9 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'text', 'cooking_time',
+        'name', 'author',
     )
-    search_fields = ('name',)
-    # list_filter = ('tag',)
+    list_filter = ('author', 'name', 'tags',)
 
 
 @admin.register(models.RecipeIngredientAmount)
@@ -31,5 +30,3 @@ class RecipeIngredientAmountAdmin(admin.ModelAdmin):
     list_display = (
         'recipe', 'ingredient', 'amount',
     )
-    search_fields = ('ingredient',)
-    list_filter = ('recipe',)

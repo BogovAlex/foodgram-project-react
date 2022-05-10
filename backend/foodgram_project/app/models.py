@@ -60,8 +60,8 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        verbose_name='Название',
-        help_text='Название ингредиента'
+        verbose_name='Название рецепта',
+        help_text='Введите название рецепта'
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -81,13 +81,19 @@ class Recipe(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='recipe',
-        verbose_name='Автор'
+        verbose_name='Автор',
+        help_text='Выберите автора рецепта'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации рецепта',
+        auto_now_add=True,
+        help_text='Введите дату публикации рецепта',
     )
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-id']
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.name[:20]
@@ -112,10 +118,10 @@ class RecipeIngredientAmount(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Список продукта в рецепте'
-        verbose_name_plural = 'Список продуктов в рецепте'
+        verbose_name = 'Список ингредиентов в рецепте'
+        verbose_name_plural = 'Список ингредиентов в рецепте'
         ordering = ['recipe']
 
     def __str__(self):
-        return (f'В {self.recipe.name[:50]} {self.ingredient.name[:50]}'
-                f'- {self.amount}')
+        return (f'{self.ingredient.name[:50]} {self.amount}'
+                f' {self.ingredient.measurement_unit[:20]}')

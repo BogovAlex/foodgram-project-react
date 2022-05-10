@@ -12,4 +12,5 @@ class CustomUserAdmin(admin.ModelAdmin):
         'username', 'first_name', 'last_name', 'email',
         'is_staff', 'is_superuser',
     )
-    search_fields = ('name',)
+    list_filter = ('email', 'username',)
+    search_fields = ('email', 'username',)
