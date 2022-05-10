@@ -1,16 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-
-from users import views
-
-usersrouter = DefaultRouter()
-usersrouter.register(
-    r'users',
-    views.UsersViewset,
-    basename='users'
-)
+from django.urls import include
+from django.conf.urls import url
 
 
 urlpatterns = [
-    path('', include(usersrouter.urls))
+    url('', include('djoser.urls')),
+    url(r'^auth/', include('djoser.urls.authtoken')),
 ]

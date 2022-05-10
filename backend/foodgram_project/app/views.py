@@ -20,3 +20,9 @@ class TagViewset(mixins.ListModelMixin,
     queryset = models.Tag.objects.all()
     serializer_class = serializers.TagSerializer
     pagination_class = None
+
+
+class RecipeViewset(viewsets.ModelViewSet):
+
+    queryset = models.Recipe.objects.all()
+    serializer_class = serializers.RecipeSerializer

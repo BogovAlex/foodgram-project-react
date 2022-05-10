@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from app import views
+# from users.views import UsersViewset
 
 approuter = DefaultRouter()
 approuter.register(
@@ -14,9 +15,13 @@ approuter.register(
     views.TagViewset,
     basename='tags'
 )
+approuter.register(
+    r'recipes',
+    views.RecipeViewset,
+    basename='recipes'
+)
 
 
 urlpatterns = [
-    # path('users/', include('users.urls')),
-    path('', include(approuter.urls))
+    path('', include(approuter.urls)),
 ]
