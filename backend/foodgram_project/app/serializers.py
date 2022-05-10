@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from app.models import Ingredient, Tag, Recipe, RecipeIngredientAmount
-from users.models import User
+from users.serializers import AuthorSerializer
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -33,20 +33,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredientAmount
         fields = ('id', 'name', 'measurement_unit', 'amount',)
-
-
-class AuthorSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed',
-        )
-
-    def get_is_subscribed(self, obj):
-        return False
 
 
 class RecipeSerializer(serializers.ModelSerializer):

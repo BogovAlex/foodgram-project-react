@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from users.models import User
+from users.models import User, Follow
 
 admin.site.unregister(Group)
 
@@ -14,3 +14,8 @@ class CustomUserAdmin(admin.ModelAdmin):
     )
     list_filter = ('email', 'username',)
     search_fields = ('email', 'username',)
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ('user', 'author',)

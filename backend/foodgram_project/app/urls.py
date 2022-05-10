@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from app import views
-# from users.views import UsersViewset
+
 
 approuter = DefaultRouter()
 approuter.register(

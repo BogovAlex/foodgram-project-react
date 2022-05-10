@@ -1,8 +1,11 @@
-# from rest_framework.authtoken.models import Token
+from rest_framework import viewsets, mixins
 
-# from users import serializers, models
+from users import models, serializers
 
 
-# def get_authorization_token(request):
-#     token = Token.objects.create(user=)
-#     models.User.objects.get()
+class SubscriptionViewset(mixins.ListModelMixin,
+                          mixins.RetrieveModelMixin,
+                          viewsets.GenericViewSet):
+
+    queryset = models.Follow.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
