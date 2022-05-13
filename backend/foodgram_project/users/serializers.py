@@ -4,6 +4,7 @@ from djoser.serializers import (
 )
 
 from users.models import User, Follow
+from app.models import Recipe
 
 
 class UserRegistrationSerializer(UserCreateSerializer):
@@ -36,7 +37,39 @@ class AuthorSerializer(serializers.ModelSerializer):
         return Follow.objects.filter(user=user, author=author).exists()
 
 
+class SubRecipes(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',)
+
+
 class SubscriptionSerializer(serializers.ModelSerializer):
+    email = serializers.StringRelatedField(
+        source='author.email',
+        read_only=True
+    )
+    id = serializers.StringRelatedField(
+        source='author.id',
+        read_only=True
+    )
+    username = serializers.StringRelatedField(
+        source='author.username',
+        read_only=True
+    )
+    first_name = serializers.StringRelatedField(
+        source='author.first_name',
+        read_only=True
+    )
+    last_name = serializers.StringRelatedField(
+        source='author.last_name',
+        read_only=True
+    )
+    recipes = SubRecipes(many=True, source='author.recipe')
+    recipes_count = serializers.ReadOnlyField(source='author.recipe.count')
+
     class Meta:
         model = Follow
-        fields = ('user', 'author',)
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name', 'recipes',
+            'recipes_count'
+        )

@@ -67,6 +67,12 @@ class Recipe(models.Model):
         verbose_name='Описание',
         help_text='Описание рецепта'
     )
+    image = models.ImageField(
+        verbose_name='Фотография готового блюда',
+        upload_to='recipes/images/',
+        blank=True,
+        help_text='Загрузите фотографию готового блюда'
+    )
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления (мин)',
         help_text=('Введитe ориентировочное время приготовления'

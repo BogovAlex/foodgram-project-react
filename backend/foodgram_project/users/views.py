@@ -7,5 +7,8 @@ class SubscriptionViewset(mixins.ListModelMixin,
                           mixins.RetrieveModelMixin,
                           viewsets.GenericViewSet):
 
-    queryset = models.Follow.objects.all()
     serializer_class = serializers.SubscriptionSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return models.Follow.objects.filter(user=user)

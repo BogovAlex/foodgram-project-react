@@ -133,3 +133,5 @@ dmypy.json
 
 .vscode
 migrations
+media
+db
