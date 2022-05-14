@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from app import views
 
+app_name = 'app'
 
 approuter = DefaultRouter()
 approuter.register(

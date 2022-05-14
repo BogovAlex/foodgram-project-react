@@ -4,6 +4,8 @@ from rest_framework.routers import SimpleRouter
 
 from users import views
 
+app_name = 'users'
+
 userrouter = SimpleRouter()
 userrouter.register(
     r'subscriptions',
@@ -14,6 +16,11 @@ userrouter.register(
 
 urlpatterns = [
     path('users/', include(userrouter.urls)),
-    url('', include('djoser.urls')),
+    path(
+        'users/', views.UserViewSet.as_view(
+            {'get': 'list', 'post': 'create'}
+        )
+    ),
+    path('', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.authtoken')),
 ]

@@ -33,8 +33,10 @@ class AuthorSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         author = obj.id
         request = self.context.get("request")
-        user = request.user.id
-        return Follow.objects.filter(user=user, author=author).exists()
+        if request:
+            user = request.user.id
+            return Follow.objects.filter(user=user, author=author).exists()
+        return False
 
 
 class SubRecipes(serializers.ModelSerializer):
