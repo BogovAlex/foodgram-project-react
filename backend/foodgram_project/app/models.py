@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.conf import settings
 
+from users.models import User
+
 
 class Tag(models.Model):
     name = models.CharField(
@@ -131,3 +133,79 @@ class RecipeIngredientAmount(models.Model):
     def __str__(self):
         return (f'{self.ingredient.name[:50]} {self.amount}'
                 f' {self.ingredient.measurement_unit[:20]}')
+
+
+class Favorite(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        related_name='favorite',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        verbose_name='Пользователь',
+        help_text=('Укажите кому добавить рецепт в избранное')
+    )
+
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='favorite',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        verbose_name='Рецепт',
+        help_text='Рецепт добавленный в избранное'
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',),
+                name='unique_favorite',
+            ),
+        )
+        verbose_name = 'Избранное пользователей'
+        verbose_name_plural = 'Избранное пользователей'
+        ordering = ('user',)
+
+    def __str__(self):
+        return (f'Пользователь {self.user.username} '
+                f'добавил {self.recipe.name} в избранное')
+
+
+class ShoppingCart(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        related_name='shopping_cart',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        verbose_name='Пользователь',
+        help_text=('Укажите кому добавить рецепт в корзину покупок')
+    )
+
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='shopping_cart',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        verbose_name='Рецепт',
+        help_text='Рецепт добавленный в корзину покупок'
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',),
+                name='unique_recipe_in_cart',
+            ),
+        )
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзина покупок'
+        ordering = ('user',)
+
+    def __str__(self):
+        return (f'Пользователь {self.user.username} '
+                f'добавил {self.recipe.name} в корзину покупок')

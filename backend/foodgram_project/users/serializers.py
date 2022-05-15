@@ -32,14 +32,14 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         author = obj.id
-        request = self.context.get("request")
-        if request:
+        request = self.context.get('request')
+        if request is not None:
             user = request.user.id
             return Follow.objects.filter(user=user, author=author).exists()
         return False
 
 
-class SubRecipes(serializers.ModelSerializer):
+class SubscriptionRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time',)
@@ -66,7 +66,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         source='author.last_name',
         read_only=True
     )
-    recipes = SubRecipes(many=True, source='author.recipe')
+    recipes = SubscriptionRecipeSerializer(many=True, source='author.recipe')
     recipes_count = serializers.ReadOnlyField(source='author.recipe.count')
 
     class Meta:

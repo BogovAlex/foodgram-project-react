@@ -21,8 +21,11 @@ approuter.register(
     views.RecipeViewset,
     basename='recipes'
 )
-
+approuter.register(
+    r'recipes/(?P<recipe_id>\d+)/favorite',
+    views.FavoriteViewset, basename='favorite'
+)
 
 urlpatterns = [
-    path('', include(approuter.urls)),
+    path('', include(approuter.urls))
 ]

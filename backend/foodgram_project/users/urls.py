@@ -17,7 +17,8 @@ userrouter.register(
 urlpatterns = [
     path('users/', include(userrouter.urls)),
     path(
-        'users/', views.UserViewSet.as_view(
+        'users/',
+        views.UserViewSet.as_view(
             {'get': 'list', 'post': 'create'}
         )
     ),

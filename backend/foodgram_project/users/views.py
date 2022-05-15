@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from djoser.views import UserViewSet as DjoserUserViewset
 
 from users import models, serializers
-from users.pagination import LimitResultsSetPagination
+from users.paginations import LimitResultsSetPagination
 
 
 class UserViewSet(DjoserUserViewset):

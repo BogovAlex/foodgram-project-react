@@ -30,3 +30,19 @@ class RecipeIngredientAmountAdmin(admin.ModelAdmin):
     list_display = (
         'recipe', 'ingredient', 'amount',
     )
+
+
+@admin.register(models.Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'recipe',
+    )
+    list_filter = ('user',)
+
+
+@admin.register(models.ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'recipe',
+    )
+    list_filter = ('user',)
