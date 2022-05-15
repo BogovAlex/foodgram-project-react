@@ -12,6 +12,10 @@ userrouter.register(
     views.SubscriptionViewset,
     basename='subscriptions'
 )
+userrouter.register(
+    r'(?P<author_id>\d+)/subscribe',
+    views.SubscriptionCreateDestroy, basename='subscribe'
+)
 
 
 urlpatterns = [

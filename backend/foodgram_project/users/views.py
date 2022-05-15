@@ -1,5 +1,8 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from djoser.views import UserViewSet as DjoserUserViewset
+from django.shortcuts import get_object_or_404
 
 from users import models, serializers
 from users.paginations import LimitResultsSetPagination
@@ -20,7 +23,32 @@ class SubscriptionViewset(mixins.ListModelMixin,
                           viewsets.GenericViewSet):
 
     serializer_class = serializers.SubscriptionSerializer
+    pagination_class = LimitResultsSetPagination
 
     def get_queryset(self):
         user = self.request.user
         return models.Follow.objects.filter(user=user)
+
+
+class SubscriptionCreateDestroy(mixins.CreateModelMixin,
+                                mixins.DestroyModelMixin,
+                                viewsets.GenericViewSet):
+
+    serializer_class = serializers.SubscriptionSerializer
+
+    def perform_create(self, serializer):
+        author = get_object_or_404(
+            models.User,
+            id=self.kwargs.get('author_id')
+        )
+        serializer.save(user=self.request.user, author=author)
+
+    @action(methods=['delete'], detail=False)
+    def delete(self, request, *args, **kwargs):
+        instance = get_object_or_404(
+            models.Follow,
+            author=self.kwargs.get('author_id'),
+            user=request.user.id
+        )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)

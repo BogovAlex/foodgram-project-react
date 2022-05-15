@@ -202,8 +202,8 @@ class ShoppingCart(models.Model):
                 name='unique_recipe_in_cart',
             ),
         )
-        verbose_name = 'Корзина покупок'
-        verbose_name_plural = 'Корзина покупок'
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
         ordering = ('user',)
 
     def __str__(self):

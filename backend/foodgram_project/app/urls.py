@@ -25,6 +25,10 @@ approuter.register(
     r'recipes/(?P<recipe_id>\d+)/favorite',
     views.FavoriteViewset, basename='favorite'
 )
+approuter.register(
+    r'recipes/(?P<recipe_id>\d+)/shopping_cart',
+    views.ShoppingCartViewset, basename='shopping_cart'
+)
 
 urlpatterns = [
     path('', include(approuter.urls))

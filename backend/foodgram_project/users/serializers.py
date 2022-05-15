@@ -7,6 +7,15 @@ from users.models import User, Follow
 from app.models import Recipe
 
 
+def is_subscribed(self, obj):
+    author = obj.id
+    request = self.context.get('request')
+    if request is not None:
+        user = request.user.id
+        return Follow.objects.filter(user=user, author=author).exists()
+    return False
+
+
 class UserRegistrationSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         fields = (
@@ -31,12 +40,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        author = obj.id
-        request = self.context.get('request')
-        if request is not None:
-            user = request.user.id
-            return Follow.objects.filter(user=user, author=author).exists()
-        return False
+        return is_subscribed(self, obj)
 
 
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
@@ -66,12 +70,18 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         source='author.last_name',
         read_only=True
     )
-    recipes = SubscriptionRecipeSerializer(many=True, source='author.recipe')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = SubscriptionRecipeSerializer(
+        many=True, source='author.recipe', required=False
+    )
     recipes_count = serializers.ReadOnlyField(source='author.recipe.count')
 
     class Meta:
         model = Follow
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name', 'recipes',
-            'recipes_count'
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count',
         )
+
+    def get_is_subscribed(self, obj):
+        return is_subscribed(self, obj)

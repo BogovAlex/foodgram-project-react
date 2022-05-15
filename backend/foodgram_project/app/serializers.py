@@ -54,8 +54,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, obj):
         queryset = RecipeIngredientAmount.objects.filter(recipe_id=obj.id)
-        serializer = RecipeIngredientSerializer(data=queryset, many=True)
-        serializer.is_valid()
+        serializer = RecipeIngredientSerializer(queryset, many=True)
         return serializer.data
 
     def get_is_favorited(self, obj):
@@ -101,3 +100,18 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time',)
         read_only_fields = ('user', 'recipe',)
+
+
+class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
+    class Meta:
+        model = ShoppingCart
+        fields = ('id', 'name', 'image', 'cooking_time',)
+
+    def validate(self, data):
+        recipe = self.context['view'].kwargs.get('recipe_id')
+        user = self.context['request'].user
+        if ShoppingCart.objects.filter(recipe=recipe, user=user).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже присутствует в списке!'
+            )
+        return data
