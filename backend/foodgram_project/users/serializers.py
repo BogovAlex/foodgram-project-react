@@ -7,15 +7,6 @@ from users.models import User, Follow
 from app.models import Recipe
 
 
-def is_subscribed(self, obj):
-    author = obj.id
-    request = self.context.get('request')
-    if request is not None:
-        user = request.user.id
-        return Follow.objects.filter(user=user, author=author).exists()
-    return False
-
-
 class UserRegistrationSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         fields = (
@@ -40,7 +31,12 @@ class AuthorSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return is_subscribed(self, obj)
+        request = self.context.get('request')
+        user = None
+        author = obj.author
+        if request is not None:
+            user = request.user
+        return Follow.objects.filter(user=user, author=author).exists()
 
 
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
@@ -71,9 +67,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         read_only=True
     )
     is_subscribed = serializers.SerializerMethodField()
-    recipes = SubscriptionRecipeSerializer(
-        many=True, source='author.recipe', required=False
-    )
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.ReadOnlyField(source='author.recipe.count')
 
     class Meta:
@@ -84,4 +78,22 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return is_subscribed(self, obj)
+        request = self.context.get('request')
+        user = None
+        author = obj.author
+        if request is not None:
+            user = request.user
+        return Follow.objects.filter(user=user, author=author).exists()
+
+    def get_recipes(self, obj):
+        queryset = Recipe.objects.filter(author=obj.author)
+        request = self.context.get('request')
+        limit = request.query_params.get('recipes_limit')
+        if limit is not None:
+            try:
+                limit = int(limit)
+                queryset = queryset[:limit]
+            except ValueError:
+                pass
+        serializer = SubscriptionRecipeSerializer(queryset, many=True)
+        return serializer.data
