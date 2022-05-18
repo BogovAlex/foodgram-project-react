@@ -33,7 +33,10 @@ class AuthorSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         user = None
-        author = obj.author
+        try:
+            author = obj.author
+        except Exception:
+            author = None
         if request is not None:
             user = request.user
         return Follow.objects.filter(user=user, author=author).exists()

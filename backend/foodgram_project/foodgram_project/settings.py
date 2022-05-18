@@ -63,10 +63,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'foodgram_project.urls'
 
+TEMPLATE_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "templates"
+)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -30,6 +30,8 @@ approuter.register(
     views.ShoppingCartViewset, basename='shopping_cart'
 )
 
+
 urlpatterns = [
-    path('', include(approuter.urls))
+    path('', include(approuter.urls)),
+    # path('recipes/download_shopping_cart/', views.generate_shopping_cart_pdf)
 ]

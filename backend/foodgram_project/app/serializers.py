@@ -106,12 +106,3 @@ class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('id', 'name', 'image', 'cooking_time',)
-
-    def validate(self, data):
-        recipe = self.context['view'].kwargs.get('recipe_id')
-        user = self.context['request'].user
-        if ShoppingCart.objects.filter(recipe=recipe, user=user).exists():
-            raise serializers.ValidationError(
-                'Рецепт уже присутствует в списке!'
-            )
-        return data

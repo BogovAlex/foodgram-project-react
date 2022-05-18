@@ -1,6 +1,7 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -58,6 +59,21 @@ class FavoriteViewset(mixins.CreateModelMixin,
 
     serializer_class = serializers.FavoriteCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        recipe = get_object_or_404(
+            models.Recipe, id=self.kwargs.get('recipe_id')
+        )
+        user = self.request.user
+        already_favorite = models.Favorite.objects.filter(
+            user=user, recipe=recipe).exists()
+        if already_favorite:
+            content = {'error': f'{recipe.name} уже добавлен в избранное!'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
         recipe = get_object_or_404(
             models.Recipe, id=self.kwargs.get('recipe_id')
@@ -85,6 +101,23 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
 
     serializer_class = serializers.ShoppingCartCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        recipe = get_object_or_404(
+            models.Recipe, id=self.kwargs.get('recipe_id')
+        )
+        user = self.request.user
+        already_favorite = models.ShoppingCart.objects.filter(
+            user=user, recipe=recipe).exists()
+        if already_favorite:
+            content = {
+                'error': f'{recipe.name} уже добавлен в корзину покупок!'
+            }
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
         recipe = get_object_or_404(
             models.Recipe, id=self.kwargs.get('recipe_id')
@@ -104,3 +137,13 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DownloadShoppingCartViewset(mixins.ListModelMixin,
+                                  viewsets.GenericViewSet):
+    serializer_class = serializers.ShoppingCartCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return models.ShoppingCart.objects.filter(user=user)
