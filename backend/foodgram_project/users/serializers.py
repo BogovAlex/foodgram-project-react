@@ -20,6 +20,24 @@ class TokenRegistrationSerializer(TokenCreateSerializer):
         fields = ('password', 'email',)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed',
+        )
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request', None)
+        if request.user.is_anonymous:
+            return False
+        user = request.user
+        return Follow.objects.filter(user=user, author=obj).exists()
+
+
 class AuthorSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 

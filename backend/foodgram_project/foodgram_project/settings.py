@@ -128,8 +128,8 @@ DJOSER = {
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserRegistrationSerializer',
         'token_create': 'users.serializers.TokenRegistrationSerializer',
-        'user': 'users.serializers.AuthorSerializer',
-        'current_user': 'users.serializers.AuthorSerializer'
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer'
     }
 }
 

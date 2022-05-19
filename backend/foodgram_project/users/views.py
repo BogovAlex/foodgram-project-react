@@ -15,7 +15,9 @@ class UserViewSet(DjoserUserViewset):
     def list(self, request):
         queryset = models.User.objects.all()
         page = self.paginate_queryset(queryset)
-        serializer = serializers.AuthorSerializer(page, many=True)
+        serializer = serializers.UserSerializer(
+            page, many=True, context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
