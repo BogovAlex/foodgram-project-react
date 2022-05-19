@@ -35,11 +35,11 @@ class RecipeViewset(viewsets.ModelViewSet):
     serializer_class = serializers.RecipeSerializer
     pagination_class = LimitResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags', 'author',)
+    filterset_class = filters.RecipeFilter
 
-    def list(self, request):
+    def get_queryset(self):
         queryset = models.Recipe.objects.all()
-        user = request.user
+        user = self.request.user
         is_favorited = self.request.query_params.get('is_favorited')
         is_in_shopping_cart = (
             self.request.query_params.get('is_in_shopping_cart')
@@ -48,9 +48,7 @@ class RecipeViewset(viewsets.ModelViewSet):
             queryset = queryset.filter(favorite__user=user)
         if is_in_shopping_cart == '1':
             queryset = queryset.filter(shopping_cart__user=user)
-        page = self.paginate_queryset(queryset)
-        serializer = serializers.RecipeSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        return queryset
 
 
 class FavoriteViewset(mixins.CreateModelMixin,

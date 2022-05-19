@@ -4,7 +4,7 @@ from app.models import (
     Favorite, Ingredient, Tag, Recipe, RecipeIngredientAmount,
     ShoppingCart,
 )
-from users.serializers import AuthorSerializer
+from users.serializers import UserSerializer
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -41,7 +41,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = serializers.SerializerMethodField()
-    author = AuthorSerializer()
+    author = UserSerializer()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
