@@ -1,6 +1,7 @@
 import django_filters
 
 from app.models import Ingredient, Recipe
+from app.models import Tag
 
 
 class IngredientFilter(django_filters.FilterSet):
@@ -15,7 +16,11 @@ class IngredientFilter(django_filters.FilterSet):
 
 class RecipeFilter(django_filters.FilterSet):
     author = django_filters.CharFilter(field_name='author__id',)
-    tags = django_filters.CharFilter(field_name='tags__slug',)
+    tags = django_filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all()
+    )
 
     class Meta:
         model = Recipe

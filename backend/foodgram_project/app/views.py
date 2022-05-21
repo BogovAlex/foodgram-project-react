@@ -2,6 +2,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -31,11 +32,13 @@ class TagViewset(mixins.ListModelMixin,
 
 class RecipeViewset(viewsets.ModelViewSet):
 
-    queryset = models.Recipe.objects.all()
     serializer_class = serializers.RecipeSerializer
     pagination_class = LimitResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.RecipeFilter
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     def get_queryset(self):
         queryset = models.Recipe.objects.all()
@@ -137,10 +140,22 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class DownloadShoppingCartViewset(mixins.ListModelMixin,
-                                  viewsets.GenericViewSet):
-    serializer_class = serializers.ShoppingCartCreateSerializer
+class DownloadShoppingCart(APIView):
+
     permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        ingredients = {}
+        for item in self.get_queryset():
+            value = models.RecipeIngredientAmount.objects.filter(recipe=item.recipe)
+            for val in value:
+                if val.ingredient.name in ingredients.keys():
+                    qnt = ingredients[val.ingredient.name]
+                    ingredients[val.ingredient.name] = qnt + val.amount
+                else:
+                    # ingredients[val.ingredient.name] = f'{val.amount} {val.ingredient.measurement_unit}'
+                    ingredients[val.ingredient.name] = val.amount
+        return Response(data=ingredients, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         user = self.request.user

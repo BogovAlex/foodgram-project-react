@@ -27,10 +27,11 @@ approuter.register(
 )
 approuter.register(
     r'recipes/(?P<recipe_id>\d+)/shopping_cart',
-    views.ShoppingCartViewset, basename='shopping_cart'
+    views.ShoppingCartViewset, basename='add_shopping_cart'
 )
 
 
 urlpatterns = [
-    path('', include(approuter.urls)),
+    path('recipes/download_shopping_cart/', views.DownloadShoppingCart.as_view()),
+    path('', include(approuter.urls))
 ]

@@ -4,6 +4,7 @@ from app.models import (
     Favorite, Ingredient, Tag, Recipe, RecipeIngredientAmount,
     ShoppingCart,
 )
+from app.fields import Base64ImageField
 from users.serializers import UserSerializer
 
 
@@ -41,9 +42,10 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = serializers.SerializerMethodField()
-    author = UserSerializer()
+    author = UserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe

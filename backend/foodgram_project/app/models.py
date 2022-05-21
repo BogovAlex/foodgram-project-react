@@ -122,7 +122,8 @@ class RecipeIngredientAmount(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name='ingredient_amount'
     )
 
     class Meta:
@@ -207,5 +208,4 @@ class ShoppingCart(models.Model):
         ordering = ('user',)
 
     def __str__(self):
-        return (f'Пользователь {self.user.username} '
-                f'добавил {self.recipe.name} в корзину покупок')
+        return self.recipe.name
