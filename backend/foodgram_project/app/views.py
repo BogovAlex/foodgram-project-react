@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 
 from app import models, filters, serializers
@@ -147,15 +147,27 @@ class DownloadShoppingCart(APIView):
     def get(self, request):
         ingredients = {}
         for item in self.get_queryset():
-            value = models.RecipeIngredientAmount.objects.filter(recipe=item.recipe)
+            value = models.RecipeIngredientAmount.objects.filter(
+                recipe=item.recipe
+            )
             for val in value:
-                if val.ingredient.name in ingredients.keys():
-                    qnt = ingredients[val.ingredient.name]
-                    ingredients[val.ingredient.name] = qnt + val.amount
+                if val.ingredient.__str__() in ingredients.keys():
+                    qnt = ingredients[val.ingredient.__str__()]
+                    ingredients[val.ingredient.__str__()] = qnt + val.amount
                 else:
-                    # ingredients[val.ingredient.name] = f'{val.amount} {val.ingredient.measurement_unit}'
-                    ingredients[val.ingredient.name] = val.amount
-        return Response(data=ingredients, status=status.HTTP_200_OK)
+                    ingredients[val.ingredient.__str__()] = val.amount
+        with open('shopping_list.txt', 'w') as f:
+            f.write('Список покупок:\n')
+            for ingredient, qnt in ingredients.items():
+                f.write('\n{} - {}'.format(ingredient, qnt))
+            f.close()
+        with open('shopping_list.txt', 'r') as f:
+            file_data = f.read()
+        response = HttpResponse(file_data, content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping-list.txt"'
+        )
+        return response
 
     def get_queryset(self):
         user = self.request.user

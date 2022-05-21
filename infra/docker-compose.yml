@@ -32,7 +32,7 @@ services:
       - POSTGRES_DB=postgres-foodgram
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=tgda$m5d
-  web:
+  backend:
     build: ../backend/foodgram_project/
     restart: always
     volumes:

@@ -32,6 +32,9 @@ approuter.register(
 
 
 urlpatterns = [
-    path('recipes/download_shopping_cart/', views.DownloadShoppingCart.as_view()),
+    path(
+        'recipes/download_shopping_cart/',
+        views.DownloadShoppingCart.as_view()
+    ),
     path('', include(approuter.urls))
 ]
