@@ -3,6 +3,16 @@ from django.contrib import admin
 from app import models
 
 
+class TagInline(admin.StackedInline):
+    model = models.TagsRecipe
+    extra = 1
+
+
+class IngredientInline(admin.StackedInline):
+    model = models.RecipeIngredient
+    extra = 1
+
+
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit',)
@@ -19,17 +29,20 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = (TagInline, IngredientInline,)
+
     list_display = (
         'name', 'author',
     )
     list_filter = ('author', 'name', 'tags',)
+    exclude = ('tags',)
 
 
-@admin.register(models.RecipeIngredientAmount)
-class RecipeIngredientAmountAdmin(admin.ModelAdmin):
-    list_display = (
-        'recipe', 'ingredient', 'amount',
-    )
+# @admin.register(models.RecipeIngredientAmount)
+# class RecipeIngredientAmountAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'recipe', 'ingredient', 'amount',
+#     )
 
 
 @admin.register(models.Favorite)

@@ -147,7 +147,7 @@ class DownloadShoppingCart(APIView):
     def get(self, request):
         ingredients = {}
         for item in self.get_queryset():
-            value = models.RecipeIngredientAmount.objects.filter(
+            value = models.RecipeIngredient.objects.filter(
                 recipe=item.recipe
             )
             for val in value:
@@ -163,6 +163,7 @@ class DownloadShoppingCart(APIView):
             f.close()
         with open('shopping_list.txt', 'r') as f:
             file_data = f.read()
+            f.close()
         response = HttpResponse(file_data, content_type='text/plain')
         response['Content-Disposition'] = (
             'attachment; filename="shopping-list.txt"'

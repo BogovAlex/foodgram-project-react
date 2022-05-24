@@ -21,8 +21,7 @@ class Command(BaseCommand):
         )
         try:
             with open(
-                # '../../data/ingredients.csv', encoding='utf-8'
-                'data/ingredients.csv', encoding='utf-8'
+                '../../data/ingredients.csv', encoding='utf-8'
             ) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
                 for __, row in enumerate(reader):

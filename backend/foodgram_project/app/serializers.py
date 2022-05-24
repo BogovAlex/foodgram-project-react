@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from app.models import (
-    Favorite, Ingredient, Tag, Recipe, RecipeIngredientAmount,
-    ShoppingCart,
+    Favorite, Ingredient, Tag, Recipe, RecipeIngredient,
+    ShoppingCart, TagsRecipe,
 )
 from app.fields import Base64ImageField
 from users.serializers import UserSerializer
@@ -21,28 +23,25 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.StringRelatedField(
-        source='ingredient.id',
-        read_only=True
+    id = serializers.StringRelatedField(source='ingredient.id')
+    name = serializers.StringRelatedField(source='ingredient.name')
+    measurement_unit = serializers.StringRelatedField(
+        source='ingredient.measurement_unit'
     )
-    name = serializers.StringRelatedField(
-        source='ingredient.name',
-        read_only=True
-    )
-    measurement_unit = serializers.PrimaryKeyRelatedField(
-        source='ingredient.measurement_unit',
-        read_only=True
-    )
+    amount = serializers.IntegerField()
 
     class Meta:
-        model = RecipeIngredientAmount
-        fields = ('id', 'name', 'measurement_unit', 'amount',)
+        model = RecipeIngredient
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
-    ingredients = serializers.SerializerMethodField()
     author = UserSerializer(read_only=True)
+    ingredients = RecipeIngredientSerializer(
+        source='ingredient',
+        many=True,
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(required=True)
@@ -54,10 +53,19 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time',
         )
 
-    def get_ingredients(self, obj):
-        queryset = RecipeIngredientAmount.objects.filter(recipe_id=obj.id)
-        serializer = RecipeIngredientSerializer(queryset, many=True)
-        return serializer.data
+    def create(self, validated_data):
+        tags = self.initial_data.pop('tags')
+        ingredients = self.initial_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        for tag in tags:
+            try:
+                current_tag = get_object_or_404(
+                    Tag, id=tag
+                )
+            except Http404:
+                raise serializers.ValidationError(f'ID:{tag} не существует!')
+            # TagsRecipe.objects.create(recipe=recipe, tag=current_tag)
+        return recipe
 
     def get_is_favorited(self, obj):
         recipe = obj.id

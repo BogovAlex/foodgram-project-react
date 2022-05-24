@@ -58,7 +58,8 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Тэги',
-        help_text='Выберите подходящие тэги для рецепта'
+        help_text='Выберите подходящие тэги для рецепта',
+        through='TagsRecipe'
     )
     name = models.CharField(
         max_length=200,
@@ -72,7 +73,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Фотография готового блюда',
         upload_to='recipes/images/',
-        blank=True,
+        blank=False,
         help_text='Загрузите фотографию готового блюда'
     )
     cooking_time = models.IntegerField(
@@ -97,6 +98,12 @@ class Recipe(models.Model):
         auto_now_add=True,
         help_text='Введите дату публикации рецепта',
     )
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        verbose_name='Ингредиенты',
+        help_text='Выберите подходящие ингредиенты для рецепта',
+        through='RecipeIngredient',
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -107,7 +114,7 @@ class Recipe(models.Model):
         return self.name[:50]
 
 
-class RecipeIngredientAmount(models.Model):
+class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -123,7 +130,7 @@ class RecipeIngredientAmount(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='ingredient_amount'
+        related_name='ingredient'
     )
 
     class Meta:
@@ -132,8 +139,23 @@ class RecipeIngredientAmount(models.Model):
         ordering = ['recipe']
 
     def __str__(self):
-        return (f'{self.ingredient.name[:50]} {self.amount}'
-                f' {self.ingredient.measurement_unit[:20]}')
+        return f'{self.ingredient} {self.recipe} {self.amount}'
+
+
+class TagsRecipe(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='Тэг',
+    )
+
+    class Meta:
+        verbose_name = 'Тэг рецепта'
+        verbose_name_plural = 'Тэги рецептов'
+
+    def __str__(self):
+        return f'{self.recipe} {self.tag}'
 
 
 class Favorite(models.Model):
