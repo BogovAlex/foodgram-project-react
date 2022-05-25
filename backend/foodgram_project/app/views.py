@@ -1,7 +1,7 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
@@ -37,12 +37,10 @@ class RecipeViewset(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.RecipeFilter
 
-    def create(self, request, *args, **kwargs):
-        user = self.request.user
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.RecipeSerializer
+        return serializers.RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

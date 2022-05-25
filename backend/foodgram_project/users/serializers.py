@@ -107,5 +107,5 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 detail='Нельзя подписаться на самого себя!')
         if Follow.objects.filter(user=user, author=author).exists():
             raise FollowValidationError(
-                f'Вы уже подписаны на {user.username}!')
+                f'Вы уже подписаны на {author.username}!')
         return data

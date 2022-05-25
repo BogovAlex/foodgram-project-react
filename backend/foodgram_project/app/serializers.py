@@ -1,10 +1,8 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 from app.models import (
     Favorite, Ingredient, Tag, Recipe, RecipeIngredient,
-    ShoppingCart, TagsRecipe,
+    ShoppingCart,
 )
 from app.fields import Base64ImageField
 from users.serializers import UserSerializer
@@ -53,20 +51,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time',
         )
 
-    def create(self, validated_data):
-        tags = self.initial_data.pop('tags')
-        ingredients = self.initial_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        for tag in tags:
-            try:
-                current_tag = get_object_or_404(
-                    Tag, id=tag
-                )
-            except Http404:
-                raise serializers.ValidationError(f'ID:{tag} не существует!')
-            # TagsRecipe.objects.create(recipe=recipe, tag=current_tag)
-        return recipe
-
     def get_is_favorited(self, obj):
         recipe = obj.id
         request = self.context.get('request')
@@ -86,6 +70,19 @@ class RecipeSerializer(serializers.ModelSerializer):
                 user_id=user, recipe_id=recipe
             ).exists()
         return False
+
+
+class RecipeCreateSerializer(RecipeSerializer):
+    tags = serializers.ListField(
+        child=serializers.CharField(), allow_empty=False
+    )
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time',
+        )
 
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
