@@ -4,13 +4,14 @@ from djoser.serializers import (
 )
 
 from users.models import User, Follow
+from users.exceptions import FollowValidationError
 from app.models import Recipe
 
 
 class UserRegistrationSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         fields = (
-            'email', 'username', 'first_name',
+            'email', 'id', 'username', 'first_name',
             'last_name', 'password',
         )
 
@@ -50,7 +51,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         source='author.email',
         read_only=True
     )
-    id = serializers.StringRelatedField(
+    id = serializers.PrimaryKeyRelatedField(
         source='author.id',
         read_only=True
     )
@@ -97,3 +98,14 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 pass
         serializer = SubscriptionRecipeSerializer(queryset, many=True)
         return serializer.data
+
+    def validate(self, data):
+        user = User.objects.get(id=self.context['request'].user.id)
+        author = User.objects.get(id=self.context['author'])
+        if user == author:
+            raise FollowValidationError(
+                detail='Нельзя подписаться на самого себя!')
+        if Follow.objects.filter(user=user, author=author).exists():
+            raise FollowValidationError(
+                f'Вы уже подписаны на {user.username}!')
+        return data
