@@ -1,8 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from app.models import (
     Favorite, Ingredient, Tag, Recipe, RecipeIngredient,
-    ShoppingCart,
+    ShoppingCart
 )
 from app.fields import Base64ImageField
 from users.serializers import UserSerializer
@@ -72,10 +73,70 @@ class RecipeSerializer(serializers.ModelSerializer):
         return False
 
 
+class RecipeIngredientCreateSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount',)
+
+
 class RecipeCreateSerializer(RecipeSerializer):
-    tags = serializers.ListField(
-        child=serializers.CharField(), allow_empty=False
+    ingredients = RecipeIngredientCreateSerializer(
+        many=True,
+        write_only=True
     )
+    tags = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(
+            queryset=Tag.objects.all()
+        ),
+        write_only=True
+    )
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+
+        for tag in tags:
+            recipe.tags.add(tag)
+
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(
+                Ingredient,
+                id=ingredient.get('id')
+            )
+            amount = ingredient.get('amount')
+            RecipeIngredient.objects.create(
+                ingredient=current_ingredient,
+                amount=amount,
+                recipe=recipe
+            )
+        return recipe
+
+    def update(self, instance, validated_data):
+        instance.ingredients.clear()
+        instance.tags.clear()
+
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+
+        for tag in tags:
+            instance.tags.add(tag)
+
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(
+                Ingredient,
+                id=ingredient.get('id')
+            )
+            amount = ingredient.get('amount')
+            RecipeIngredient.objects.create(
+                ingredient=current_ingredient,
+                amount=amount,
+                recipe=instance
+            )
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Recipe

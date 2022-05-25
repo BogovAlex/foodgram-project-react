@@ -42,8 +42,37 @@ class RecipeViewset(viewsets.ModelViewSet):
             return serializers.RecipeSerializer
         return serializers.RecipeCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        serializer = serializers.RecipeSerializer(
+            instance=serializer.instance,
+            context={'request': self.request}
+        )
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED
+        )
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=False
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = serializers.RecipeSerializer(
+            instance=serializer.instance,
+            context={'request': self.request},
+        )
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
 
     def get_queryset(self):
         queryset = models.Recipe.objects.all()
@@ -52,10 +81,12 @@ class RecipeViewset(viewsets.ModelViewSet):
         is_in_shopping_cart = (
             self.request.query_params.get('is_in_shopping_cart')
         )
+
         if is_favorited == '1':
             queryset = queryset.filter(favorite__user=user)
         if is_in_shopping_cart == '1':
             queryset = queryset.filter(shopping_cart__user=user)
+
         return queryset
 
 
