@@ -1,13 +1,22 @@
+from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
 
-from app import models, filters, serializers
+from app.serializers import (
+    IngredientSerializer, TagSerializer, RecipeSerializer,
+    RecipeCreateSerializer, FavoriteCreateSerializer,
+    ShoppingCartCreateSerializer
+)
+from app.filters import IngredientFilter, RecipeFilter
+from app.models import (
+    Ingredient, Tag, Recipe, Favorite, ShoppingCart, RecipeIngredient
+)
 from app.paginations import LimitResultsSetPagination
 
 
@@ -15,9 +24,9 @@ class IngredientViewset(mixins.ListModelMixin,
                         mixins.RetrieveModelMixin,
                         viewsets.GenericViewSet):
 
-    queryset = models.Ingredient.objects.all()
-    serializer_class = serializers.IngredientSerializer
-    filterset_class = filters.IngredientFilter
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    filterset_class = IngredientFilter
     pagination_class = None
 
 
@@ -25,28 +34,28 @@ class TagViewset(mixins.ListModelMixin,
                  mixins.RetrieveModelMixin,
                  viewsets.GenericViewSet):
 
-    queryset = models.Tag.objects.all()
-    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
     pagination_class = None
 
 
 class RecipeViewset(viewsets.ModelViewSet):
 
-    serializer_class = serializers.RecipeSerializer
+    serializer_class = RecipeSerializer
     pagination_class = LimitResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = filters.RecipeFilter
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
-            return serializers.RecipeSerializer
-        return serializers.RecipeCreateSerializer
+            return RecipeSerializer
+        return RecipeCreateSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        serializer = serializers.RecipeSerializer(
+        serializer = RecipeSerializer(
             instance=serializer.instance,
             context={'request': self.request}
         )
@@ -57,7 +66,7 @@ class RecipeViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request):
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
@@ -66,7 +75,7 @@ class RecipeViewset(viewsets.ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        serializer = serializers.RecipeSerializer(
+        serializer = RecipeSerializer(
             instance=serializer.instance,
             context={'request': self.request},
         )
@@ -75,7 +84,7 @@ class RecipeViewset(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        queryset = models.Recipe.objects.all()
+        queryset = Recipe.objects.all()
         user = self.request.user
         is_favorited = self.request.query_params.get('is_favorited')
         is_in_shopping_cart = (
@@ -94,16 +103,16 @@ class FavoriteViewset(mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
 
-    serializer_class = serializers.FavoriteCreateSerializer
+    serializer_class = FavoriteCreateSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         recipe = get_object_or_404(
-            models.Recipe, id=self.kwargs.get('recipe_id')
+            Recipe, id=self.kwargs.get('recipe_id')
         )
         user = self.request.user
-        already_favorite = models.Favorite.objects.filter(
+        in_favorite = Favorite.objects.filter(
             user=user, recipe=recipe).exists()
-        if already_favorite:
+        if in_favorite:
             content = {'error': f'{recipe.name} уже добавлен в избранное!'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
@@ -113,15 +122,15 @@ class FavoriteViewset(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         recipe = get_object_or_404(
-            models.Recipe, id=self.kwargs.get('recipe_id')
+            Recipe, id=self.kwargs.get('recipe_id')
         )
         serializer.save(user=self.request.user, recipe=recipe)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request):
         try:
             instance = get_object_or_404(
-                models.Favorite,
+                Favorite,
                 recipe=self.kwargs.get('recipe_id'),
                 user=request.user.id
             )
@@ -136,16 +145,16 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
                           mixins.DestroyModelMixin,
                           viewsets.GenericViewSet):
 
-    serializer_class = serializers.ShoppingCartCreateSerializer
+    serializer_class = ShoppingCartCreateSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         recipe = get_object_or_404(
-            models.Recipe, id=self.kwargs.get('recipe_id')
+            Recipe, id=self.kwargs.get('recipe_id')
         )
         user = self.request.user
-        already_favorite = models.ShoppingCart.objects.filter(
+        in_shopping_cart = ShoppingCart.objects.filter(
             user=user, recipe=recipe).exists()
-        if already_favorite:
+        if in_shopping_cart:
             content = {
                 'error': f'{recipe.name} уже добавлен в корзину покупок!'
             }
@@ -157,15 +166,15 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         recipe = get_object_or_404(
-            models.Recipe, id=self.kwargs.get('recipe_id')
+            Recipe, id=self.kwargs.get('recipe_id')
         )
         serializer.save(user=self.request.user, recipe=recipe)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request):
         try:
             instance = get_object_or_404(
-                models.ShoppingCart,
+                ShoppingCart,
                 recipe=self.kwargs.get('recipe_id'),
                 user=request.user.id
             )
@@ -180,10 +189,10 @@ class DownloadShoppingCart(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def get(self):
         ingredients = {}
         for item in self.get_queryset():
-            value = models.RecipeIngredient.objects.filter(
+            value = RecipeIngredient.objects.filter(
                 recipe=item.recipe
             )
             for val in value:
@@ -208,4 +217,4 @@ class DownloadShoppingCart(APIView):
 
     def get_queryset(self):
         user = self.request.user
-        return models.ShoppingCart.objects.filter(user=user)
+        return ShoppingCart.objects.filter(user=user)

@@ -1,11 +1,7 @@
 from rest_framework import serializers
-
-from djoser.serializers import (
-    UserCreateSerializer, TokenCreateSerializer
-)
+from djoser.serializers import UserCreateSerializer, TokenCreateSerializer
 
 from app.models import Recipe
-
 from users.models import User, Follow
 from users.exceptions import FollowValidationError
 
@@ -43,7 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
-
+    """Сокращенный вариант вложенного представления рецепта."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time',)
@@ -103,6 +99,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def validate(self, data):
+        """Проверка некорректных вариантов подписки.
+        Подписка на самого себя и повторная подписка недопустима.
+        """
         user = User.objects.get(id=self.context['request'].user.id)
         author = User.objects.get(id=self.context['author'])
         if user == author:

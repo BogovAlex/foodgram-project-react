@@ -4,8 +4,8 @@ from rest_framework.routers import SimpleRouter
 from app import views
 
 app_name = 'app'
-
 approuter = SimpleRouter()
+
 approuter.register(
     r'ingredients',
     views.IngredientViewset,
