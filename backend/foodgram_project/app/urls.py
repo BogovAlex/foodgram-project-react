@@ -1,11 +1,11 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from app import views
 
 app_name = 'app'
 
-approuter = DefaultRouter()
+approuter = SimpleRouter()
 approuter.register(
     r'ingredients',
     views.IngredientViewset,

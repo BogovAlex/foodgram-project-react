@@ -55,7 +55,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         recipe = obj.id
         request = self.context.get('request')
-        if request is not None:
+        if request:
             user = request.user.id
             return Favorite.objects.filter(
                 user_id=user, recipe_id=recipe
@@ -65,7 +65,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         recipe = obj.id
         request = self.context.get('request')
-        if request is not None:
+        if request:
             user = request.user.id
             return ShoppingCart.objects.filter(
                 user_id=user, recipe_id=recipe
@@ -113,6 +113,7 @@ class RecipeCreateSerializer(RecipeSerializer):
                 amount=amount,
                 recipe=recipe
             )
+
         return recipe
 
     def update(self, instance, validated_data):

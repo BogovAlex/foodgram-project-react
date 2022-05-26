@@ -1,44 +1,49 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from djoser.views import UserViewSet as DjoserUserViewset
-from django.shortcuts import get_object_or_404
 
-from users import models, serializers
+from djoser.views import UserViewSet as DjoserUserViewset
+
+from users.models import User, Follow
 from users.paginations import LimitResultsSetPagination
+from users.serializers import SubscriptionSerializer, UserSerializer
 
 
 class UserViewSet(DjoserUserViewset):
+    """Добавлен параметр limit для лимитирования количества
+    объектов на странице.
+    """
     pagination_class = LimitResultsSetPagination
 
     def list(self, request):
-        queryset = models.User.objects.all()
+        queryset = User.objects.all()
         page = self.paginate_queryset(queryset)
-        serializer = serializers.UserSerializer(
+        serializer = UserSerializer(
             page, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
 
 class SubscriptionViewset(mixins.ListModelMixin,
-                          mixins.RetrieveModelMixin,
                           viewsets.GenericViewSet):
-
-    serializer_class = serializers.SubscriptionSerializer
+    """Возвращает пользователей, на которых подписан текущий пользователь."""
+    serializer_class = SubscriptionSerializer
     pagination_class = LimitResultsSetPagination
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user
-        return models.Follow.objects.filter(user=user)
+        return Follow.objects.filter(user=user)
 
 
 class SubscriptionCreateDestroy(mixins.CreateModelMixin,
                                 mixins.DestroyModelMixin,
                                 viewsets.GenericViewSet):
-
-    serializer_class = serializers.SubscriptionSerializer
+    """Создание и удаление подписок на авторов."""
+    serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_context(self):
@@ -48,15 +53,15 @@ class SubscriptionCreateDestroy(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         author = get_object_or_404(
-            models.User,
+            User,
             id=self.kwargs.get('author_id')
         )
         serializer.save(user=self.request.user, author=author)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request):
         instance = get_object_or_404(
-            models.Follow,
+            Follow,
             author=self.kwargs.get('author_id'),
             user=request.user.id
         )

@@ -1,11 +1,13 @@
 from rest_framework import serializers
+
 from djoser.serializers import (
     UserCreateSerializer, TokenCreateSerializer
 )
 
+from app.models import Recipe
+
 from users.models import User, Follow
 from users.exceptions import FollowValidationError
-from app.models import Recipe
 
 
 class UserRegistrationSerializer(UserCreateSerializer):
@@ -41,6 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time',)
@@ -80,11 +83,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        user = None
-        author = obj.author
-        if request is not None:
+        if request:
             user = request.user
-        return Follow.objects.filter(user=user, author=author).exists()
+            author = obj.author
+            return Follow.objects.filter(user=user, author=author).exists()
+        return False
 
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author)

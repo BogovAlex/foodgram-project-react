@@ -118,6 +118,8 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
+# Djoser base settings
+# https://djoser.readthedocs.io/en/latest/settings.html
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
@@ -142,7 +144,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
+    'PAGE_SIZE': 25,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',)
 }
