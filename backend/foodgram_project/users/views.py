@@ -48,7 +48,7 @@ class SubscriptionCreateDestroy(mixins.CreateModelMixin,
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["author"] = int(self.kwargs.get('author_id'))
+        context['author'] = int(self.kwargs.get('author_id'))
         return context
 
     def perform_create(self, serializer):

@@ -51,7 +51,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.name[:100] + ', ' + self.measurement_unit[:20]
+        return f'{self.name[:100]}, {self.measurement_unit[:20]}'
 
 
 class Recipe(models.Model):
@@ -76,15 +76,15 @@ class Recipe(models.Model):
         blank=False,
         help_text='Загрузите фотографию готового блюда'
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления (мин)',
         help_text=('Введитe ориентировочное время приготовления'
                    ' по рецепту в минутах'),
-        validators=[
+        validators=(
             MinValueValidator(
                 limit_value=1,
-                message='Время приготовления не может быть меньше 1 минуты')
-        ]
+                message='Время приготовления не может быть меньше 1 минуты'),
+        )
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -121,7 +121,7 @@ class RecipeIngredient(models.Model):
         verbose_name='Ингредиент',
         related_name='amount'
     )
-    amount = models.IntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         help_text='Введите количество продукта (не менее 1)',
         validators=(MinValueValidator(1, message='Не может быть меньше 1!'),)
@@ -167,7 +167,7 @@ class Favorite(models.Model):
         blank=False,
         null=False,
         verbose_name='Пользователь',
-        help_text=('Укажите кому добавить рецепт в избранное')
+        help_text='Укажите кому добавить рецепт в избранное'
     )
 
     recipe = models.ForeignKey(

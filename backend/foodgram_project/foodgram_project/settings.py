@@ -29,7 +29,7 @@ load_dotenv(dotenv_path)
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['backend', '127.0.0.1']
 
@@ -104,18 +104,18 @@ AUTH_USER_MODEL = 'users.User'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    # },
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 # Djoser base settings

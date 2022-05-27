@@ -38,13 +38,6 @@ class RecipeAdmin(admin.ModelAdmin):
     exclude = ('tags',)
 
 
-# @admin.register(models.RecipeIngredientAmount)
-# class RecipeIngredientAmountAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'recipe', 'ingredient', 'amount',
-#     )
-
-
 @admin.register(models.Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
