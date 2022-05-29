@@ -6,6 +6,7 @@ from users.models import User
 
 
 class Tag(models.Model):
+
     name = models.CharField(
         max_length=200,
         verbose_name='Название',
@@ -31,6 +32,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+
     name = models.CharField(
         verbose_name='Название',
         max_length=200,
@@ -46,6 +48,9 @@ class Ingredient(models.Model):
         help_text='Введите единицу измерения продукта вида - кг/г/мг'
     )
 
+    def _get_name(self):
+        return f'{self.name[:100]}, {self.measurement_unit[:20]}'
+
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
@@ -55,6 +60,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Тэги',
@@ -82,8 +88,10 @@ class Recipe(models.Model):
                    ' по рецепту в минутах'),
         validators=(
             MinValueValidator(
-                limit_value=1,
-                message='Время приготовления не может быть меньше 1 минуты'),
+                limit_value=settings.MIN_COOKING_TIME,
+                message=('Время приготовления не может быть меньше '
+                         f'{settings.MIN_COOKING_TIME} минуты')
+            ),
         )
     )
     author = models.ForeignKey(
@@ -115,6 +123,7 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -124,7 +133,11 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         help_text='Введите количество продукта (не менее 1)',
-        validators=(MinValueValidator(1, message='Не может быть меньше 1!'),)
+        validators=(
+            MinValueValidator(
+                limit_value=settings.MIN_AMOUNT,
+                message=f'Не может быть меньше {settings.MIN_AMOUNT}!'),
+        )
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -143,6 +156,7 @@ class RecipeIngredient(models.Model):
 
 
 class TagsRecipe(models.Model):
+
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     tag = models.ForeignKey(
         Tag,
@@ -169,7 +183,6 @@ class Favorite(models.Model):
         verbose_name='Пользователь',
         help_text='Укажите кому добавить рецепт в избранное'
     )
-
     recipe = models.ForeignKey(
         Recipe,
         related_name='favorite',

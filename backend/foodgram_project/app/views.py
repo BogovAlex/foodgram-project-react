@@ -1,5 +1,8 @@
 from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponse
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.db.models import QuerySet
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, mixins, status
@@ -128,15 +131,11 @@ class FavoriteViewset(mixins.CreateModelMixin,
 
     @action(methods=['delete'], detail=False)
     def delete(self, request):
-        try:
-            instance = get_object_or_404(
-                Favorite,
-                recipe=self.kwargs.get('recipe_id'),
-                user=request.user.id
-            )
-        except Http404 as error:
-            content = {'error': str(error)}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        instance = get_object_or_404(
+            Favorite,
+            recipe=self.kwargs.get('recipe_id'),
+            user=request.user.id
+        )
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -172,15 +171,11 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
 
     @action(methods=['delete'], detail=False)
     def delete(self, request):
-        try:
-            instance = get_object_or_404(
-                ShoppingCart,
-                recipe=self.kwargs.get('recipe_id'),
-                user=request.user.id
-            )
-        except Http404 as error:
-            content = {'error': str(error)}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        instance = get_object_or_404(
+            ShoppingCart,
+            recipe=self.kwargs.get('recipe_id'),
+            user=request.user.id
+        )
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -189,32 +184,39 @@ class DownloadShoppingCart(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self):
-        ingredients = {}
-        for item in self.get_queryset():
-            value = RecipeIngredient.objects.filter(
+    def _create_shopping_list(self, queryset: QuerySet,
+                              response: HttpResponse) -> HttpResponse:
+        """Формирует список продуктов и записывает его в
+        переданный response.
+        """
+        unique_ingredient = []
+        response.write('Список продуктов:</br>')
+        for item in queryset:
+            recipe_ingredient = RecipeIngredient.objects.filter(
                 recipe=item.recipe
             )
-            for val in value:
-                if val.ingredient.__str__() in ingredients.keys():
-                    qnt = ingredients[val.ingredient.__str__()]
-                    ingredients[val.ingredient.__str__()] = qnt + val.amount
-                else:
-                    ingredients[val.ingredient.__str__()] = val.amount
-        with open('shopping_list.txt', 'w') as f:
-            f.write('Список покупок:\n')
-            for ingredient, qnt in ingredients.items():
-                f.write('\n{} - {}'.format(ingredient, qnt))
-            f.close()
-        with open('shopping_list.txt', 'r') as f:
-            file_data = f.read()
-            f.close()
-        response = HttpResponse(file_data, content_type='text/plain')
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping-list.txt"'
-        )
+            for row in recipe_ingredient:
+                if row.ingredient.id not in unique_ingredient:
+                    amount = recipe_ingredient.filter(
+                        ingredient=row.ingredient).aggregate(Sum('amount'))
+                    response.write(f'</br>{row.ingredient._get_name()}')
+                    response.write(f' - {amount.get("amount__sum")}')
+                    unique_ingredient.append(row.ingredient.id)
         return response
 
+    def get(self, request):
+        """Формирует HttpResponse и передает ответ в виде файла
+        списка покупок для юзера, который инициировал запрос.
+        """
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = (
+            f'attachment; filename="{settings.SHOPPING_LIST_NAME}"'
+        )
+        return self._create_shopping_list(self.get_queryset(), response)
+
     def get_queryset(self):
+        """Получает queryset списка покупок для юзера, который
+        инициировал запрос.
+        """
         user = self.request.user
         return ShoppingCart.objects.filter(user=user)

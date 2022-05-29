@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 
 from app.models import (
@@ -55,22 +56,18 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         recipe = obj.id
         request = self.context.get('request')
-        if request:
-            user = request.user.id
-            return Favorite.objects.filter(
-                user_id=user, recipe_id=recipe
-            ).exists()
-        return False
+        user = request.user.id
+        return Favorite.objects.filter(
+            user_id=user, recipe_id=recipe
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         recipe = obj.id
         request = self.context.get('request')
-        if request:
-            user = request.user.id
-            return ShoppingCart.objects.filter(
-                user_id=user, recipe_id=recipe
-            ).exists()
-        return False
+        user = request.user.id
+        return ShoppingCart.objects.filter(
+            user_id=user, recipe_id=recipe
+        ).exists()
 
 
 class RecipeIngredientCreateSerializer(serializers.Serializer):
@@ -169,9 +166,21 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time',)
         read_only_fields = ('user', 'recipe',)
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe',),
+            ),
+        )
 
 
 class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('id', 'name', 'image', 'cooking_time',)
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe',),
+            ),
+        )
