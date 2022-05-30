@@ -33,7 +33,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=tgda$m5d
   backend:
-    build: ../backend/foodgram_project/
+    image: abogov/foodgram_backend:latest
     restart: always
     volumes:
       - static_volume:/app/static/
