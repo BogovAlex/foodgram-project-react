@@ -13,7 +13,7 @@
 :small_blue_diamond: Python <br>
 :small_blue_diamond: Django <br>
 :small_blue_diamond: Django REST Framework <br>
-:small_blue_diamond: React <br>
+:small_blue_diamond: React JS <br>
 
 
 ## :bust_in_silhouette: Автор проекта 
