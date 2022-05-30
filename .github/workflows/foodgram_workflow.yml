@@ -31,6 +31,7 @@ jobs:
   Build_foodgram_image_and_push_to_Docker_Hub:
     name: Push backend container to Docker Hub
     runs-on: ubuntu-latest
+    needs: Tests_project_flake8
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2 
