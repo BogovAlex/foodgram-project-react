@@ -1,7 +1,7 @@
 ![](https://img.shields.io/badge/Python-3.8.7-blue) 
 ![](https://img.shields.io/badge/Django-3.2.13-green)
 ![](https://img.shields.io/badge/DjangoRestFramework-3.13.1-red)
-![](https://github.com/BogovAlex/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)
+![](https://github.com/BogovAlex/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 # Продуктовый помощник Foodgram
 
