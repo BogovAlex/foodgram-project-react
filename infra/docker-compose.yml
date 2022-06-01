@@ -17,7 +17,7 @@ services:
     image: abogov/foodgram_backend:latest
     restart: always
     volumes:
-      - static_value:/app/static/
+      - static_value:/app/django_static/
       - media_value:/app/media/
     depends_on:
       - db
@@ -35,7 +35,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static_value:/var/html/static/
+      - static_value:/var/html/django_static/
       - media_value:/var/html/media/
     depends_on:
       - backend
