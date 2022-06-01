@@ -108,7 +108,7 @@ class FavoriteViewset(mixins.CreateModelMixin,
 
     serializer_class = FavoriteCreateSerializer
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         recipe = get_object_or_404(
             Recipe, id=self.kwargs.get('recipe_id')
         )
@@ -130,7 +130,7 @@ class FavoriteViewset(mixins.CreateModelMixin,
         serializer.save(user=self.request.user, recipe=recipe)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         instance = get_object_or_404(
             Favorite,
             recipe=self.kwargs.get('recipe_id'),
@@ -146,7 +146,7 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
 
     serializer_class = ShoppingCartCreateSerializer
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         recipe = get_object_or_404(
             Recipe, id=self.kwargs.get('recipe_id')
         )
@@ -170,7 +170,7 @@ class ShoppingCartViewset(mixins.CreateModelMixin,
         serializer.save(user=self.request.user, recipe=recipe)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         instance = get_object_or_404(
             ShoppingCart,
             recipe=self.kwargs.get('recipe_id'),
