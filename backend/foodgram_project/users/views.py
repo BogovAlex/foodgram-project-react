@@ -59,7 +59,7 @@ class SubscriptionCreateDestroy(mixins.CreateModelMixin,
         serializer.save(user=self.request.user, author=author)
 
     @action(methods=['delete'], detail=False)
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         instance = get_object_or_404(
             Follow,
             author=self.kwargs.get('author_id'),
