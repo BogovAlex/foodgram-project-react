@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
-# from django.db.models import Sum
 from django.http import HttpResponse
-# from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -184,47 +183,24 @@ class DownloadShoppingCart(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    # def _create_shopping_list(self, queryset: QuerySet,
-    #                           response: HttpResponse) -> HttpResponse:
-    #     """Формирует список продуктов и записывает его в
-    #     переданный response.
-    #     """
-    #     unique_ingredient = []
-    #     response.write('Список продуктов:\n')
-    #     for item in queryset:
-    #         recipe_ingredient = RecipeIngredient.objects.filter(
-    #             recipe=item.recipe
-    #         ).aggregate(total_amount=Sum('amount'))
-    #         for row in recipe_ingredient:
-    #             if row.ingredient.id not in unique_ingredient:
-    #                 response.write(f'\n{row.ingredient._get_name()}')
-    #                 response.write(f' - {item.total_amount}')
-    #                 unique_ingredient.append(row.ingredient.id)
-    #     return response
-
-    def _create_shopping_list(self, queryset, response):
-        ingredients_and_amount = {}
+    def _create_shopping_list(self, queryset: QuerySet,
+                              response: HttpResponse) -> HttpResponse:
+        """Формирует список продуктов и записывает его в
+        переданный response.
+        """
+        unique_ingredient = []
         response.write('Список продуктов:\n')
         for item in queryset:
-            ingredients_recipe = RecipeIngredient.objects.filter(
+            recipe_ingredient = RecipeIngredient.objects.filter(
                 recipe=item.recipe
             )
-            for row in ingredients_recipe:
-                ingredient = row.ingredient
-                amount = row.amount
-                if ingredient in ingredients_and_amount:
-                    if isinstance(ingredients_and_amount[ingredient], list):
-                        ingredients_and_amount[ingredient].append(amount)
-                    else:
-                        ingredients_and_amount[ingredient] = [
-                            ingredients_and_amount[ingredient], amount
-                        ]
-                else:
-                    ingredients_and_amount[ingredient] = amount
-        for ingredient, amount in ingredients_and_amount.items():
-            response.write(f'\n{ingredient.name}')
-            response.write((f' ({ingredient.measurement_unit})'))
-            response.write(f' - {amount}')
+            for row in recipe_ingredient:
+                if row.ingredient.id not in unique_ingredient:
+                    amount = recipe_ingredient.filter(
+                        ingredient=row.ingredient).aggregate(Sum('amount'))
+                    response.write(f'\n{row.ingredient._get_name()}')
+                    response.write(f' - {amount.get("amount__sum")}')
+                    unique_ingredient.append(row.ingredient.id)
         return response
 
     def get(self, request):
