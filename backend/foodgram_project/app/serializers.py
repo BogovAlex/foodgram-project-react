@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 # from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 
@@ -91,6 +92,7 @@ class RecipeCreateSerializer(RecipeSerializer):
         write_only=True
     )
 
+    @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -113,6 +115,7 @@ class RecipeCreateSerializer(RecipeSerializer):
 
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.ingredients.clear()
         instance.tags.clear()
