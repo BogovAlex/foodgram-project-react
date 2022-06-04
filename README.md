@@ -18,6 +18,7 @@
 :small_blue_diamond: Django REST Framework <br>
 :small_blue_diamond: React JS <br>
 :small_blue_diamond: PostgreSQL <br>
+:small_blue_diamond: Docker <br>
 
 
 ## :pencil2: Инструкции по запуску
