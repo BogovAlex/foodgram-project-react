@@ -169,21 +169,9 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time',)
         read_only_fields = ('user', 'recipe',)
-        # validators = (
-        #     UniqueTogetherValidator(
-        #         queryset=Favorite.objects.all(),
-        #         fields=('user', 'recipe',),
-        #     ),
-        # )
 
 
 class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('id', 'name', 'image', 'cooking_time',)
-        # validators = (
-        #     UniqueTogetherValidator(
-        #         queryset=ShoppingCart.objects.all(),
-        #         fields=['user', 'recipe'],
-        #     ),
-        # )

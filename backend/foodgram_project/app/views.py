@@ -190,17 +190,17 @@ class DownloadShoppingCart(APIView):
         """
         unique_ingredient = []
         response.write('Список продуктов:\n')
-        for item in queryset:
-            recipe_ingredient = RecipeIngredient.objects.filter(
-                recipe=item.recipe
-            )
-            for row in recipe_ingredient:
-                if row.ingredient.id not in unique_ingredient:
-                    amount = recipe_ingredient.filter(
-                        ingredient=row.ingredient).aggregate(Sum('amount'))
-                    response.write(f'\n{row.ingredient._get_name()}')
-                    response.write(f' - {amount.get("amount__sum")}')
-                    unique_ingredient.append(row.ingredient.id)
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__in=queryset.values("recipe")
+        )
+        for item in ingredients:
+            if item.ingredient.id not in unique_ingredient:
+                total_amount = RecipeIngredient.objects.filter(
+                    ingredient__id=item.ingredient.id
+                ).aggregate(Sum('amount'))
+                response.write(f'\n{item.ingredient._get_name()}')
+                response.write(f' - {total_amount.get("amount__sum")}')
+                unique_ingredient.append(item.ingredient.id)
         return response
 
     def get(self, request):
