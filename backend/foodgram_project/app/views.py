@@ -20,6 +20,7 @@ from app.models import (
     Ingredient, Tag, Recipe, Favorite, ShoppingCart, RecipeIngredient
 )
 from app.paginations import LimitResultsSetPagination
+from app.permissions import OwnerOrAdminOrReadOnly
 
 
 class IngredientViewset(mixins.ListModelMixin,
@@ -47,6 +48,7 @@ class RecipeViewset(viewsets.ModelViewSet):
     pagination_class = LimitResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    permission_classes = (OwnerOrAdminOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
