@@ -98,6 +98,14 @@ class RecipeCreateSerializer(RecipeSerializer):
         write_only=True
     )
 
+    def _is_amount_valid(self, ingredient):
+        amount = ingredient.get('amount')
+        if ingredient.get('amount') < 0:
+            raise serializers.ValidationError(
+                'Количество ингредиента не может быть меньше 0!'
+            )
+        return amount
+
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
@@ -112,7 +120,7 @@ class RecipeCreateSerializer(RecipeSerializer):
                 Ingredient,
                 id=ingredient.get('id')
             )
-            amount = ingredient.get('amount')
+            amount = self._is_amount_valid(ingredient)
             RecipeIngredient.objects.create(
                 ingredient=current_ingredient,
                 amount=amount,
@@ -137,7 +145,7 @@ class RecipeCreateSerializer(RecipeSerializer):
                 Ingredient,
                 id=ingredient.get('id')
             )
-            amount = ingredient.get('amount')
+            amount = self._is_amount_valid(ingredient)
             RecipeIngredient.objects.create(
                 ingredient=current_ingredient,
                 amount=amount,
