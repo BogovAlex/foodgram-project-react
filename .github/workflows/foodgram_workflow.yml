@@ -55,7 +55,7 @@ jobs:
       - name: Copy docker-compose in folder
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: ../../infra/docker-compose.yml
+          local: ./infra/docker-compose.yml
           remote: infra/docker-compose.yml
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
