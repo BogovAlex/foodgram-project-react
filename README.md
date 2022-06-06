@@ -65,6 +65,18 @@ docker-compose up -d
 http://localhost/api/docs/redoc.html
 ```
 
+Список переменных необходимых для запуска проекта:
+```
+DB_ENGINE = django.db.backends.postgresql
+DB_NAME = ... (имя базы данных)
+POSTGRES_USER = ... (имя пользователя базы данных)
+POSTGRES_PASSWORD = ... (пароль к базе данных)
+DB_HOST = ... (хост расположения базы данных)
+DB_PORT = ... (порт подключения базы данных)
+POSTGRES_DB = ... (имя базы данных)
+SECRET_KEY = ... (SECRET_KEY Django проекта)
+DEBUG = ... (True/False)
+```
 
 ## :bust_in_silhouette: Автор проекта 
 #### Алексей Богов _(Alexey Mi. Bogov)_

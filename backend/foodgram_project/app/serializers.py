@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-# from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 
 from app.models import (
@@ -34,13 +33,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
-
-    def validate_amount(self, value):
-        if value < 0:
-            raise serializers.ValidationError(
-                'Количество ингредиента не может быть меньше 0!'
-            )
-        return value
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -85,6 +77,13 @@ class RecipeIngredientCreateSerializer(serializers.Serializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount',)
+
+    def validate_amount(self, value):
+        if value < 0:
+            raise serializers.ValidationError(
+                'Количество ингредиента не может быть меньше 0!'
+            )
+        return value
 
 
 class RecipeCreateSerializer(RecipeSerializer):
