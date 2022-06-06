@@ -58,8 +58,9 @@ docker-compose up -d
 ```
 
 ## :books: Документация
-Документация к проекту доступна по адресу:
+Документация к проекту доступна по адресу: http://foodgram.viewdns.net/api/docs/redoc.html
 
+Локальная документация:
 ```html
 http://localhost/api/docs/redoc.html
 ```

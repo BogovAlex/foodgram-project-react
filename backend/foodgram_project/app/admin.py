@@ -24,7 +24,6 @@ class IngredientAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug',)
     search_fields = ('name', 'color', 'slug')
-    list_filter = ('name',)
 
 
 @admin.register(models.Recipe)
@@ -34,8 +33,10 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'author',
     )
-    list_filter = ('author', 'name', 'tags',)
-    exclude = ('tags',)
+    list_filter = ('tags',)
+    search_fields = (
+        'author__username', 'author__email', 'name',
+    )
 
 
 @admin.register(models.Favorite)
@@ -43,7 +44,9 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
         'user', 'recipe',
     )
-    list_filter = ('user',)
+    search_fields = (
+        'user__username', 'user__email', 'recipe__name',
+    )
 
 
 @admin.register(models.ShoppingCart)
@@ -51,4 +54,6 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'user', 'recipe',
     )
-    list_filter = ('user',)
+    search_fields = (
+        'user__username', 'user__email', 'recipe__name',
+    )
