@@ -48,6 +48,18 @@ jobs:
           push: true
           tags: abogov/foodgram_backend:latest
 
+  Copy_files_on_server:
+    name: Push backend container to Docker Hub
+      - name: Copy docker-compose in folder
+            uses: garygrossgarten/github-action-scp@release
+            with:
+              local: docker-compose.yml
+              remote: infra/docker-compose.yml
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USER }}
+              privateKey: ${{ secrets.SSH_KEY }}
+              passphrase: ${{ secrets.PASSPHRASE }}
+
   Deploy:
     name: Push backend container to server
     runs-on: ubuntu-latest
