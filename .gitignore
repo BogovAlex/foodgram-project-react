@@ -132,9 +132,7 @@ dmypy.json
 .idea
 
 .vscode
-migrations
 media
 db
 django_static
 docker-compose-dev.yml
-package-lock.json

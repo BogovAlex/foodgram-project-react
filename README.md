@@ -39,9 +39,18 @@ pip install --upgrade pip
 pip install -r backend/foodgram_project/requirements.txt
 ```
 
-Из папки backend/foodgram_project/ выполнить миграции:
+
+Из папки backend/foodgram_project/ собрать статику командой:
 
 ```
+python manage.py collectstatic
+```
+
+
+Из папки backend/foodgram_project/ выполнить миграции командой:
+
+```
+python manage.py makemigrations
 python manage.py migrate
 ```
 
